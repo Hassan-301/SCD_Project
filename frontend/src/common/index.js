@@ -1,4 +1,4 @@
-const backendDomin = "http://localhost:5000"
+const backendDomin = "http://localhost:5000";  // Update to Minikube IP and NodePort
 
 const SummaryApi = {
     signUP : {
@@ -79,5 +79,5 @@ const SummaryApi = {
     }
 }
 
+export default SummaryApi;
 
-export default SummaryApi
