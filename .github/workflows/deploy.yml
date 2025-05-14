@@ -3,44 +3,42 @@ name: Build and Deploy to Minikube
 on:
   push:
     branches:
-      - main  # This will trigger the workflow on every push to the main branch.
+      - main
 
 jobs:
   build-deploy:
-    runs-on: self-hosted  # This will use the self-hosted runner on your local machine.
+    runs-on: self-hosted
 
     steps:
-    # Checkout the repository's code
+    # Step 1: Checkout the repository code
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Set up Docker to use Minikube's environment
+    # Step 2: Set up Docker to use Minikube's environment
     - name: Set up Docker to use Minikube's environment
       run: |
         echo "Configuring Docker to use Minikube's daemon..."
-        eval $(minikube docker-env)  # Configures Docker to use Minikube's Docker daemon
+        eval $(minikube docker-env)
 
-    # Build the Docker image
+    # Step 3: Build the Docker images
     - name: Build Docker image
       run: |
-        docker build -t hassan3011/my-app-backend:latest ./backend  # Adjust paths as needed
-        docker build -t hassan3011/my-app-frontend:latest ./frontend  # Adjust paths as needed
+        docker build -t hassan3011/my-app-backend:latest -f backend/Dockerfile .
+        docker build -t hassan3011/my-app-frontend:latest -f frontend/Dockerfile .
 
-    # Log in to Docker Hub
+    # Step 4: Login to Docker Hub using secrets
     - name: Login to Docker Hub
       run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-      env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
-    # Push the Docker image to Docker Hub
+    # Step 5: Push Docker images to Docker Hub
     - name: Push Docker image to Docker Hub
       run: |
         docker push hassan3011/my-app-backend:latest
         docker push hassan3011/my-app-frontend:latest
 
-    # Deploy the app to Minikube using kubectl
+    # Step 6: Deploy to Minikube (Apply Kubernetes manifests)
     - name: Deploy to Minikube
       run: |
-        kubectl apply -f deployment.yaml  # Apply the deployment.yaml file
-        kubectl apply -f service.yaml  # Apply the service.yaml file
+        kubectl apply -f k8s/deployment.yaml --namespace=my-app-namespace
+        kubectl apply -f k8s/service.yaml --namespace=my-app-namespace
+

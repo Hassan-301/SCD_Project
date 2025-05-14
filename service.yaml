@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: backend-service
+  namespace: my-app-namespace  # Ensure the namespace is correctly set
 spec:
   type: NodePort
   selector:
@@ -9,13 +10,14 @@ spec:
   ports:
     - port: 80
       targetPort: 5000
-      nodePort: 30001
+      nodePort: 30005
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: frontend-service
+  namespace: my-app-namespace  # Ensure the namespace is correctly set
 spec:
   type: NodePort
   selector:
@@ -23,5 +25,5 @@ spec:
   ports:
     - port: 80
       targetPort: 3000
-      nodePort: 30002
+      nodePort: 30006
 
